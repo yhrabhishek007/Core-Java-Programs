@@ -1,0 +1,337 @@
+package com.collection.arraylist;
+
+import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+public class TestCopyOnWriteArrayListDemo {
+
+	public static void main(String[] args) {
+
+//		CopyOnWriteArrayList creates a new copy of its underlying array whenever it is modified,
+//		so existing iterators can safely continue using the old snapshot.
+
+		/*
+		 * CopyOnWriteArrayList
+		 *
+		 * It allows us to modify the list while iterating. It will NOT throw
+		 * ConcurrentModificationException.
+		 *
+		 * It works using a COPY (snapshot) of the list.
+		 */
+		CopyOnWriteArrayList<Integer> al = new CopyOnWriteArrayList<>();
+
+		al.add(100);
+		al.add(150);
+		al.add(200);
+		al.add(250);
+		al.add(100);
+		al.add(300);
+		al.add(350);
+
+		/*
+		 * ------------------------------------------------ FAIL-FAST EXAMPLE
+		 * ------------------------------------------------
+		 *
+		 * ArrayList is fail-fast.
+		 *
+		 * If we modify ArrayList while using Iterator, it throws
+		 * ConcurrentModificationException.
+		 */
+
+		/*
+		 * ArrayList<Integer> list = new ArrayList<>();
+		 * 
+		 * list.add(100); list.add(150); list.add(200);
+		 * 
+		 * Iterator<Integer> itr = list.iterator();
+		 * 
+		 * while (itr.hasNext()) {
+		 * 
+		 * System.out.println(itr.next());
+		 * 
+		 * // ❌ This causes ConcurrentModificationException list.add(400); }
+		 */
+
+		/*
+		 * ------------------------------------------------ COPYONWRITEARRAYLIST EXAMPLE
+		 * ------------------------------------------------
+		 *
+		 * CopyOnWriteArrayList is safe to modify while iterating.
+		 */
+
+		Iterator<Integer> itr = al.iterator();
+
+		while (itr.hasNext()) {
+
+			System.out.println(itr.next());
+
+			// ✅ No ConcurrentModificationException
+			al.add(400);
+		}
+
+		System.out.println(al);
+
+		/*
+		 * WHY NO EXCEPTION?
+		 *
+		 * Iterator takes a snapshot when it is created.
+		 *
+		 * Original list: 100 150 200 250 100 300 350
+		 *
+		 * Iterator gets this snapshot: 100 150 200 250 100 300 350
+		 *
+		 * Then we add 400:
+		 *
+		 * Actual list: 100 150 200 250 100 300 350 400
+		 *
+		 * But iterator still uses its old snapshot.
+		 *
+		 * Therefore: ✅ No ConcurrentModificationException ❌ Iterator does not see the
+		 * new 400
+		 */
+
+		/*
+		 * ------------------------------------------------ FAIL-FAST vs FAIL-SAFE
+		 * ------------------------------------------------
+		 *
+		 * FAIL-FAST:
+		 *
+		 * Collection is modified while iterating ↓ ConcurrentModificationException
+		 *
+		 * Example: ArrayList HashSet HashMap
+		 *
+		 *
+		 * FAIL-SAFE / SNAPSHOT:
+		 *
+		 * Collection is modified while iterating ↓ No ConcurrentModificationException
+		 *
+		 * Example: CopyOnWriteArrayList
+		 */
+
+		/*
+		 * EASY TO REMEMBER:
+		 *
+		 * FAIL-FAST: "You changed the list → I will throw an exception."
+		 *
+		 * COPY-ON-WRITE: "You changed the list → No problem, I have a copy."
+		 */
+	}
+}
+
+//package com.collections;
+//
+//import java.util.ArrayList;
+//import java.util.Iterator;
+//import java.util.concurrent.CopyOnWriteArrayList;
+//import java.util.ConcurrentModificationException;
+//
+//public class TestCopyOnWriteArrayListDemo {
+//
+//    public static void main(String[] args) {
+//
+//        /*
+//         * CopyOnWriteArrayList is present in java.util.concurrent package.
+//         *
+//         * Important:
+//         * CopyOnWriteArrayList is NOT a subclass of ArrayList.
+//         *
+//         * So this is correct:
+//         */
+//        CopyOnWriteArrayList<Integer> al = new CopyOnWriteArrayList<>();
+//
+//        al.add(100);
+//        al.add(150);
+//        al.add(200);
+//        al.add(250);
+//        al.add(100);
+//        al.add(300);
+//        al.add(350);
+//
+//
+//        /*
+//         * ---------------------------------------------------------
+//         * 1. FOR-EACH LOOP WITH ArrayList
+//         * ---------------------------------------------------------
+//         *
+//         * If we use normal ArrayList and modify the collection
+//         * while iterating, we get:
+//         *
+//         * ConcurrentModificationException
+//         *
+//         * This behavior is called FAIL-FAST.
+//         */
+//
+//        /*
+//        ArrayList<Integer> list = new ArrayList<>();
+//
+//        list.add(100);
+//        list.add(150);
+//        list.add(200);
+//
+//        for (Integer a : list) {
+//
+//            System.out.println(a);
+//
+//            // Modifying ArrayList while iterating
+//            // will cause ConcurrentModificationException.
+//            list.add(400);
+//        }
+//        */
+//
+//
+//        /*
+//         * ---------------------------------------------------------
+//         * 2. NORMAL FOR LOOP
+//         * ---------------------------------------------------------
+//         *
+//         * Here we are NOT using an Iterator.
+//         *
+//         * We are directly accessing elements using:
+//         *
+//         *     get()
+//         *     size()
+//         *
+//         * Therefore, ConcurrentModificationException is not
+//         * automatically generated by an Iterator.
+//         *
+//         * BUT this can become an INFINITE LOOP because every
+//         * iteration increases the size of the ArrayList.
+//         */
+//
+//        /*
+//        for (int i = 0; i < al.size(); i++) {
+//
+//            System.out.println(al.get(i));
+//
+//            // Every iteration increases the size
+//            al.add(400);
+//        }
+//        */
+//
+//
+//        /*
+//         * ---------------------------------------------------------
+//         * 3. ITERATOR WITH ArrayList - FAIL FAST
+//         * ---------------------------------------------------------
+//         *
+//         * If we use ArrayList:
+//         *
+//         *     Iterator<Integer> itr = list.iterator();
+//         *
+//         * and modify the ArrayList directly while iterating,
+//         * we get ConcurrentModificationException.
+//         *
+//         * This is called FAIL-FAST.
+//         */
+//
+//        /*
+//        ArrayList<Integer> list = new ArrayList<>();
+//
+//        list.add(100);
+//        list.add(150);
+//        list.add(200);
+//
+//        Iterator<Integer> itr = list.iterator();
+//
+//        while (itr.hasNext()) {
+//
+//            System.out.println(itr.next());
+//
+//            // Modifying ArrayList while iterator is active
+//            // causes ConcurrentModificationException.
+//            list.add(400);
+//        }
+//        */
+//
+//
+//        /*
+//         * ---------------------------------------------------------
+//         * 4. CopyOnWriteArrayList - SNAPSHOT / FAIL-SAFE STYLE
+//         * ---------------------------------------------------------
+//         *
+//         * CopyOnWriteArrayList works differently.
+//         *
+//         * When iterator() is called, the iterator works on a
+//         * snapshot of the array.
+//         *
+//         * If we modify the original list after creating the
+//         * iterator, the iterator continues working on its
+//         * original snapshot.
+//         *
+//         * Therefore, ConcurrentModificationException is NOT thrown.
+//         */
+//
+//        Iterator<Integer> itr = al.iterator();
+//
+//        while (itr.hasNext()) {
+//
+//            System.out.println(itr.next());
+//
+//            /*
+//             * No ConcurrentModificationException here.
+//             *
+//             * CopyOnWriteArrayList creates a new copy when
+//             * the list is modified.
+//             *
+//             * The iterator continues using the old snapshot.
+//             */
+//            al.add(400);
+//        }
+//
+//
+//        /*
+//         * The iterator does NOT see the newly added 400 values.
+//         *
+//         * Iterator snapshot:
+//         *
+//         * 100 150 200 250 100 300 350
+//         *
+//         * While iterating, we keep adding 400 to the actual list.
+//         *
+//         * Actual list changes:
+//         *
+//         * 100 150 200 250 100 300 350 400 400 400...
+//         *
+//         * But the iterator continues to see only its original
+//         * snapshot.
+//         */
+//
+//        System.out.println(al);
+//
+//
+//        /*
+//         * ---------------------------------------------------------
+//         * FAIL-FAST vs COPY-ON-WRITE
+//         * ---------------------------------------------------------
+//         *
+//         * FAIL-FAST:
+//         *
+//         * ArrayList
+//         * HashSet
+//         * HashMap
+//         * Vector (its iterator is fail-fast)
+//         *
+//         * If collection is structurally modified while
+//         * iterating -> ConcurrentModificationException
+//         *
+//         *
+//         * COPY-ON-WRITE / SNAPSHOT STYLE:
+//         *
+//         * CopyOnWriteArrayList
+//         *
+//         * Modification while iterating is allowed.
+//         * Iterator works on a snapshot.
+//         *
+//         *
+//         * EASY WAY TO REMEMBER:
+//         *
+//         * FAIL-FAST:
+//         * "You changed the collection while I am iterating,
+//         *  so I will throw an exception."
+//         *
+//         * COPY-ON-WRITE:
+//         * "You changed the collection, that's okay.
+//         *  I will continue using my snapshot."
+//         */
+//    }
+//}
