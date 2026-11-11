@@ -1,4 +1,4 @@
-package com.oops.inheritance.shallowcopy;
+package com.oops.inheritance.deepcopy;
 
 // Deep Copy using Copy Constructor
 
